@@ -212,7 +212,7 @@ def get_secondary_connections(network, user):
     first_connection = network[user][0]
     result = []
     for connection1 in first_connection:
-        second_connection = get_connections(network, connection)
+        second_connection = get_connections(network, connection1)
         for connection2 in second_connection:
             if connection2 not in result:
                 result.append(connection2)
@@ -231,9 +231,13 @@ def get_secondary_connections(network, user):
 #   The number of connections in common (as an integer).
 #   - If user_A or user_B is not in network, return False.
 def connections_in_common(network, user_A, user_B):
-    connectionA = get_connections
-    connectionB
-    return 0
+    connectionA = get_connections(network,user_A)
+    connectionB = get_connections(network,user_B)
+    result = []
+    for connection in connectionA:
+        if connection in connectionB:
+            result.append(connection)
+    return len(result)
 
 # ----------------------------------------------------------------------------- 
 # path_to_friend(network, user_A, user_B): 
