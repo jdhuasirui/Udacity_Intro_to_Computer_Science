@@ -106,10 +106,6 @@ def create_data_structure(string_input):
             likes=(split[i+1][(split[i+1].find("to play ")+8):].split(", "))
             network[split[i][0:split[i].find(" ")]]=connection,likes
         return network
-            
-                
-                
-        
 
 # ----------------------------------------------------------------------------- # 
 # Note that the first argument to all procedures below is 'network' This is the #
@@ -131,7 +127,10 @@ def create_data_structure(string_input):
 #   - If the user has no connections, return an empty list.
 #   - If the user is not in network, return None.
 def get_connections(network, user):
-	return network[user][0]
+    if user not in network:
+        return None
+    else:
+        return network[user][0]
 
 # ----------------------------------------------------------------------------- 
 # get_games_liked(network, user): 
@@ -146,7 +145,10 @@ def get_connections(network, user):
 #   - If the user likes no games, return an empty list.
 #   - If the user is not in network, return None.
 def get_games_liked(network,user):
-    return network[user][1]
+    if user not in network:
+        return None
+    else:
+        return network[user][1]
 
 # ----------------------------------------------------------------------------- 
 # add_connection(network, user_A, user_B): 
@@ -163,7 +165,9 @@ def get_games_liked(network,user):
 #   - If a connection already exists from user_A to user_B, return network unchanged.
 #   - If user_A or user_B is not in network, return False.
 def add_connection(network, user_A, user_B):
-    if user_B in network[user_A][0]:
+    if user_A not in network or user_B not in network:
+        return False
+    elif user_B in network[user_A][0]:
         return network
     else:
         network[user_A][0].append(user_B)
@@ -187,8 +191,11 @@ def add_connection(network, user_A, user_B):
 #   - If the user already exists in network, return network *UNCHANGED* (do not change
 #     the user's game preferences)
 def add_new_user(network, user, games):
-    network[user] = [],games
-    return network
+    if user in network:
+        return network
+    else:
+        network[user] = [],games
+        return network
 		
 # ----------------------------------------------------------------------------- 
 # get_secondary_connections(network, user): 
@@ -209,14 +216,17 @@ def add_new_user(network, user, games):
 #   himself/herself. It is also OK if the list contains a user's primary 
 #   connection that is a secondary connection as well.
 def get_secondary_connections(network, user):
-    first_connection = network[user][0]
-    result = []
-    for connection1 in first_connection:
-        second_connection = get_connections(network, connection)
-        for connection2 in second_connection:
-            if connection2 not in result:
-                result.append(connection2)
-	return result
+    if user not in network:
+        return None
+    else:
+        first_connection = network[user][0]
+        result = []
+        for connection1 in first_connection:
+            second_connection = get_connections(network, connection1)
+            for connection2 in second_connection:
+                if connection2 not in result:
+                    result.append(connection2)
+        return result
 
 # ----------------------------------------------------------------------------- 	
 # connections_in_common(network, user_A, user_B): 
@@ -231,9 +241,16 @@ def get_secondary_connections(network, user):
 #   The number of connections in common (as an integer).
 #   - If user_A or user_B is not in network, return False.
 def connections_in_common(network, user_A, user_B):
-    connectionA = get_connections
-    connectionB
-    return 0
+    if user_A not in network or user_B not in network:
+        return False
+    else:
+        connectionA = get_connections(network,user_A)
+        connectionB = get_connections(network,user_B)
+        result = []
+        for connection in connectionA:
+            if connection in connectionB:
+                result.append(connection)
+        return len(result)
 
 # ----------------------------------------------------------------------------- 
 # path_to_friend(network, user_A, user_B): 
@@ -268,8 +285,19 @@ def connections_in_common(network, user_A, user_B):
 #   may safely add default parameters since all calls used in the grading script 
 #   will only include the arguments network, user_A, and user_B.
 def path_to_friend(network, user_A, user_B):
-	# your RECURSIVE solution here!
-	return None
+	# your RECURSIVE solution here!\
+    path = None
+    if user_A not in network or user_B not in network or user_A==user_B:
+        return None
+    else:
+        path = [user_A]
+        if user_B in network[user_A][0]:
+            return path+[user_B]
+        else:
+            for friend in network[user_A][0]:
+                if friend not in path:
+                    path = path + path_to_friend(network,friend,user_B)
+                    return path
 
 # Make-Your-Own-Procedure (MYOP)
 # ----------------------------------------------------------------------------- 
@@ -277,6 +305,23 @@ def path_to_friend(network, user_A, user_B):
 # structure (like add_new_user) or it should perform some valuable analysis of 
 # your network (like path_to_friend). Don't forget to comment your MYOP. You 
 # may give this procedure any name you want.
+def friend_path(network, user_A, user_B, checked):
+    if user_B in get_connections(network, user_A):
+        return checked+[user_B]
+    for user in get_connections(network, user_A):
+        if user not in checked:
+            result = friend_path(network, user, user_B, checked+[user])
+            if result:
+                return result
+    return None
+    
+        
+
+def path_to_friend(network, user_A, user_B):
+    if user_A not in network or user_B not in network:
+        return None
+	# your RECURSIVE solution here!\
+    return friend_path(network, user_A, user_B, [user_A])
 
 # Replace this with your own procedure! You can also uncomment the lines below
 # to see how your code behaves. Have fun!
